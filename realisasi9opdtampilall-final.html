@@ -336,6 +336,15 @@
       // Ubah lokasi hash agar browser langsung lompat ke elemen itu
       targetCard.setAttribute('id', targetId);
       window.location.hash = targetId;
+		setTimeout(() => {
+  const card = document.getElementById(targetId);
+  if (card) {
+    const cardHeight = card.offsetHeight;
+    const viewportHeight = window.innerHeight;
+    const offset = card.getBoundingClientRect().top + window.scrollY - (viewportHeight / 2) + (cardHeight / 2);
+    window.scrollTo({ top: offset, behavior: 'instant' });
+  }
+}, 300);
     }
   }
 }
@@ -361,4 +370,5 @@ initDashboard();
 </div>
 
 </body>
+
 </html>
