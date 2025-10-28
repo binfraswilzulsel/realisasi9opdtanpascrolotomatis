@@ -313,16 +313,18 @@
     // =====================
     // INISIALISASI DASHBOARD
     // =====================
-    async function initDashboard() {
+async function initDashboard() {
   let selectedOpdId = getUrlParameter('opd');
   if (!selectedOpdId && window.location.hash) {
     selectedOpdId = window.location.hash.substring(1);
   }
 
+  // Nonaktifkan efek scroll otomatis hash
+  history.scrollRestoration = "manual";
+
   const allDataOPD = await fetchOPDData();
   renderAllOPD(allDataOPD);
 
-  // Jika ada parameter opd, arahkan langsung ke elemen tanpa scroll otomatis
   if (selectedOpdId) {
     const normalize = str => str.toLowerCase().replace(/[^a-z0-9]/g, '');
     const targetId = normalize(selectedOpdId);
@@ -333,23 +335,22 @@
     });
 
     if (targetCard) {
-      // Ubah lokasi hash agar browser langsung lompat ke elemen itu
+      // Tambahkan ID agar bisa diakses ulang (tanpa trigger hash jump)
       targetCard.setAttribute('id', targetId);
-      window.location.hash = targetId;
-		setTimeout(() => {
-  const card = document.getElementById(targetId);
-  if (card) {
-    const cardHeight = card.offsetHeight;
-    const viewportHeight = window.innerHeight;
-    const offset = card.getBoundingClientRect().top + window.scrollY - (viewportHeight / 2) + (cardHeight / 2);
-    window.scrollTo({ top: offset, behavior: 'instant' });
-  }
-}, 300);
+
+      // Hitung posisi agar kartu berada di tengah layar
+      const cardHeight = targetCard.offsetHeight;
+      const viewportHeight = window.innerHeight;
+      const offset = targetCard.offsetTop - (viewportHeight / 2) + (cardHeight / 2);
+
+      // Set scrollTop langsung tanpa animasi → tampil statis di tengah
+      window.scrollTo(0, offset);
     }
   }
 }
 
 initDashboard();
+
   </script>
 
   <footer>
@@ -372,3 +373,4 @@ initDashboard();
 </body>
 
 </html>
+
