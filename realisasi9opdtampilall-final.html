@@ -16,7 +16,7 @@
       --radius: 18px;
       --pad: 14px;
     }
-
+  
     html,body{height:100%}
     body {
       margin: 0;
@@ -179,6 +179,24 @@
     }
 
     footer { text-align: center; color: white; padding: 25px; font-size: 11px; }
+
+.visitor-counter {
+  position: fixed;
+  bottom: 20px;
+  right: 20px; 
+  background: #fff;
+  color: var(--bg);
+  padding: 8px 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  font-weight: 700;
+  font-size: 14px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+	  
   </style>
 </head>
 
@@ -187,7 +205,11 @@
 
   <script>
     const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyejuIHszRU2q5ozE0kGzO2FQpa-_iOoQXnAUssEwedzo85JM_zuDZ4oyDQj3rW4rqdTQ/exec'; 
-    const formatRupiah = (n) => new Intl.NumberFormat('id-ID').format(n);
+    
+// GANTI URL DI BAWAH INI dengan URL Web App Apps Script Counter yang sudah Anda Deploy!
+const COUNTER_URL = 'https://script.google.com/macros/s/AKfycbzSJOF9OP0-K63E_6haeO1dyTKt72XWoRLWW1QyePIy0ELs01L89pjf6rvxYqI0_8M4/exec';
+	  
+	  const formatRupiah = (n) => new Intl.NumberFormat('id-ID').format(n);
 
     function getUrlParameter(name) {
       name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -310,6 +332,26 @@
       });
     }
 
+
+// ==============================================
+    // FUNGSI BARU: MENGAMBIL DAN MENAMPILKAN COUNTER
+    // ==============================================
+    async function fetchAndDisplayVisitorCount() {
+        const counterElement = document.getElementById('counterValue');
+        
+        try {
+            // Panggil URL counter Apps Script
+            const response = await fetch(COUNTER_URL); 
+            const count = await response.text();
+            
+            // Tampilkan nilai counter
+            counterElement.textContent = `Total Kunjungan: ${formatRupiah(count)}`;
+        } catch (error) {
+            console.error("Gagal mengambil atau menambah hitungan pengunjung:", error);
+            counterElement.textContent = 'Gagal memuat';
+        }
+    }
+	  
     // =====================
     // INISIALISASI DASHBOARD
     // =====================
@@ -349,8 +391,10 @@ async function initDashboard() {
   }
 }
 
+	  
 initDashboard();
 
+  
   </script>
 
   <footer>
@@ -358,6 +402,11 @@ initDashboard();
     31 Oktober 2025 | 17.05 WITA | by @zuwlend
   </footer>
 
+<div id="visitorCounter" class="visitor-counter">
+  <span style="font-size: 18px;">👀</span>
+  <span id="counterValue">Memuat...</span>
+</div>
+	
 <div style="
   position: fixed;
   bottom: 20px;
@@ -367,10 +416,11 @@ initDashboard();
   font-family: Arial, sans-serif;
   cursor: pointer;
   user-select: none;">
-  <a href="index.html" style="font-size: 20px; font-weight: bold; text-decoration: none; display: block; line-height: 40px;">👈</a>
+  <a href="index.html" style="font-size: 20px; font-weight: bold; text-decoration: none; display: block; line-height: 40px;">👈 BACK</a>
 </div>
 
 </body>
 
 </html>
+
 
