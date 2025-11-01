@@ -1,214 +1,223 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard OPD — Realisasi Keuangan & Fisik</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>
-    :root {
-      --bg: #0740aa;
-      --card: #ffffff;
-      --muted: #6b7280;
-      --accent-green: #07AA1F;
-      --accent-blue: #1149b8;
-      --accent-pink: #AA0792;
-      --radius: 18px;
-      --pad: 14px;
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard OPD — Realisasi Keuangan & Fisik</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0740aa;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --accent-green: #07AA1F;
+      --accent-blue: #1149b8;
+      --accent-pink: #AA0792;
+      --radius: 18px;
+      --pad: 14px;
+    }
+  
+    html,body{height:100%}
+    body {
+      margin: 0;
+      background: var(--bg);
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: #0740aa;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin: 0 auto;
+      padding-bottom: 1px;
+    }
+
+    .opd-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: var(--pad);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      position: relative;
+      overflow: visible;
+      width: calc(50% - 10px);
+      box-sizing: border-box;
+    }
+
+    .emoji-wrap {
+      flex: 0 0 90px;
+      border-radius: 12px;
+      background: linear-gradient(180deg,#fff8,#fff0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+    }
+
+    .opd-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 5px;
+    }
+
+    .opd-body .total-anggaran {
+      background-color: var(--accent-blue);
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 6px 6px;
+      border-radius: 8px;
+      margin-top: 8px;
+      text-align: center;
+      width: 100%;
+      max-width: 85%;
+      box-sizing: border-box;
+    }
+
+    .opd-body { flex: 1; }
+    .opd-title { font-weight: 800; font-size: 24px; color: #0b4aa2; margin: 0; line-height: 1; }
+    .sub { color: var(--muted); margin-top: 6px; font-size: 14px; }
+
+    .toggle-btn {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--accent-blue);
+      font-weight: bold;
+      z-index: 10;
+    }
+
+    .monthly {
+      background: #40AA07;
+      border-radius: 16px; 
+      padding: 8px; 
+      text-align: center;
+      margin-top: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      width: 92%; 
+      margin: 10px auto;
+    }
+
+    .monthly h3 { 
+      margin: 0; 
+      font-size: 12px; 
+      color: #ffffff; }
+    
+    .monthly .amount { 
+      margin-top: 0; 
+      font-size: 22px; 
+      font-weight: bold; 
+      color: #ffffff; }
+
+    .chart-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 12px;
+      margin-top: 14px;
+      outline: #AA0792 solid 3px;
+      width: 89%;
+      margin: 14px auto;
+      
+      /* Kunci: Sembunyikan detail chart secara default */
+      **display: none;**
+    }
+    
+    /* Aturan untuk menampilkan detail chart ketika kartu memiliki class 'expanded' */
+    .opd-card.expanded .chart-card {
+      **display: block;**
+    }
+
+
+    .chart-title { font-weight: bold; text-align: center; margin-bottom: 8px; font-size: 14px; }
+    .legend { display: flex; gap: 12px; justify-content: center; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
+   	.legend .item { display: flex; gap: 8px; align-items: center; }
+    .dot { width: 18px; height: 10px; border-radius: 6px; display: inline-block; }
+
+    .progress-row { margin-top: 8px; font-size: 14px; color: #111; }
+    .progress-label { color: var(--muted); font-size: 13px; }
+    .progress-bar { background: #e6e6e6; border-radius: 999px; height: 22px; overflow: hidden; display: flex; align-items: center; padding: 3px; }
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      min-width: 40px;
+      transition: width 600ms ease;
+    }
+
+    .pie-wrapper { position: relative; padding: 10px; }
+    .pie-canvas { width: 100% !important; max-width: 400px; margin: 0 auto; }
+
+    @media (max-width: 768px) {
+      .opd-card { width: 100%; }
+      .pie-canvas { max-width: 350px; }
+    }
+
+    @media (max-width: 420px) {
+      .opd-card { padding: 12px; }
+      .big-amount { font-size: 18px; }
+      .monthly .amount { font-size: 22px; }
+      .pie-canvas {
+        max-width: 300px;
+      }
+    }
+
+    .hingga-bg {
+      background-color: #AA0792; 
+      padding: 1px 4px; 
+      border-radius: 5px; 
+      font-weight: bold;
+      color: #ffffff; 
+    }
+
+    footer { text-align: center; color: white; padding: 25px; font-size: 11px; }
+
+    /* CSS COUNTER (posisi di antara konten dan footer) */
+    .visitor-counter {
+        position: relative; /* Dibuat mengalir sesuai dokumen */
+        margin: 20px auto 40px auto; /* Margin di atas dan bawah */
+        width: fit-content; /* Ukuran sesuai konten */
+        background: #fff;
+        color: var(--bg);
+        padding: 8px 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        font-weight: 700;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
-  
-    html,body{height:100%}
-    body {
-      margin: 0;
-      background: var(--bg);
-      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      color: #0740aa;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      margin: 0 auto;
-      padding-bottom: 1px;
-    }
-
-    .opd-card {
-      background: var(--card);
-      border-radius: 20px;
-      padding: var(--pad);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-      position: relative;
-      overflow: visible;
-      width: calc(50% - 10px);
-      box-sizing: border-box;
-    }
-
-    .emoji-wrap {
-      flex: 0 0 90px;
-      border-radius: 12px;
-      background: linear-gradient(180deg,#fff8,#fff0);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 60px;
-    }
-
-    .opd-header {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-top: 5px;
-    }
-
-    .opd-body .total-anggaran {
-      background-color: var(--accent-blue);
-      color: white;
-      font-weight: 700;
-      font-size: 16px;
-      padding: 6px 6px;
-      border-radius: 8px;
-      margin-top: 8px;
-      text-align: center;
-      width: 100%;
-      max-width: 85%;
-      box-sizing: border-box;
-    }
-
-    .opd-body { flex: 1; }
-    .opd-title { font-weight: 800; font-size: 24px; color: #0b4aa2; margin: 0; line-height: 1; }
-    .sub { color: var(--muted); margin-top: 6px; font-size: 14px; }
-
-    .toggle-btn {
-      position: absolute;
-      right: 12px;
-      top: 12px;
-      background: transparent;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: var(--accent-blue);
-    }
-
-    .expandable {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 14px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-      margin-top: 10px;
-    }
-
-    .monthly {
-      background: #40AA07;
-      border-radius: 16px; 
-      padding: 8px; 
-      text-align: center;
-      margin-top: 10px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      width: 92%; 
-      margin: 10px auto;
-    }
-
-    .monthly h3 { 
-      margin: 0; 
-      font-size: 12px; 
-      color: #ffffff; }
-    
-    .monthly .amount { 
-      margin-top: 0; 
-      font-size: 22px; 
-      font-weight: bold; 
-      color: #ffffff; }
-
-    .chart-card {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 12px;
-      margin-top: 14px;
-      outline: #AA0792 solid 3px;
-      width: 89%;
-      margin: 14px auto;
-    }
-
-    .chart-title { font-weight: bold; text-align: center; margin-bottom: 8px; font-size: 14px; }
-    .legend { display: flex; gap: 12px; justify-content: center; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
-   	.legend .item { display: flex; gap: 8px; align-items: center; }
-    .dot { width: 18px; height: 10px; border-radius: 6px; display: inline-block; }
-
-    .progress-row { margin-top: 8px; font-size: 14px; color: #111; }
-    .progress-label { color: var(--muted); font-size: 13px; }
-    .progress-bar { background: #e6e6e6; border-radius: 999px; height: 22px; overflow: hidden; display: flex; align-items: center; padding: 3px; }
-    .progress-fill {
-      height: 100%;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 800;
-      min-width: 40px;
-      transition: width 600ms ease;
-    }
-
-    .pie-wrapper { position: relative; padding: 10px; }
-    .pie-canvas { width: 100% !important; max-width: 400px; margin: 0 auto; }
-
-    @media (max-width: 768px) {
-      .opd-card { width: 100%; }
-      .pie-canvas { max-width: 350px; }
-    }
-
-    @media (max-width: 420px) {
-      .opd-card { padding: 12px; }
-      .big-amount { font-size: 18px; }
-      .monthly .amount { font-size: 22px; }
-      .pie-canvas {
-        max-width: 300px;
-      }
-    }
-
-    .hingga-bg {
-      background-color: #AA0792; 
-      padding: 1px 4px; 
-      border-radius: 5px; 
-      font-weight: bold;
-      color: #ffffff; 
-    }
-
-    footer { text-align: center; color: white; padding: 25px; font-size: 11px; }
-
-.visitor-counter {
-  position: fixed;
-  bottom: 20px;
-  right: 20px; 
-  background: #fff;
-  color: var(--bg);
-  padding: 8px 15px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  font-weight: 700;
-  font-size: 14px;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-	  
-  </style>
+	  
+  </style>
 </head>
 
 <body>
-  <div class="container" id="containerOPD"></div>
+  <div class="container" id="containerOPD"></div>
 
-  <script>
-
+    <div id="visitorCounter" class="visitor-counter">
+      <span style="font-size: 18px;">👀</span>
+      <span id="counterValue">Memuat...</span>
+    </div>
+      <script>
+    // ####################################################################
+    // GANTI URL DI BAWAH INI (Apps Script Data Utama)
+    // ####################################################################
     const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyejuIHszRU2q5ozE0kGzO2FQpa-_iOoQXnAUssEwedzo85JM_zuDZ4oyDQj3rW4rqdTQ/exec'; 
     
     // ####################################################################
-    // GANTI URL DI BAWAH INI dengan URL Web App Apps Script Counter yang sudah Anda Deploy!
+    // GANTI URL DI BAWAH INI (Apps Script Visitor Counter)
     // ####################################################################
     const COUNTER_URL = 'https://script.google.com/macros/s/AKfycbzSJOF9OP0-K63E_6haeO1dyTKt72XWoRLWW1QyePIy0ELs01L89pjf6rvxYqI0_8M4/exec';
 	  
@@ -250,10 +259,17 @@
       }
     };
 
-    function createOPDCard(opd, idx) {
-      
-        // ⚠️ PENTING: Menghapus perhitungan di sini (agar tidak terjadi double-calculation)
+    // Fungsi untuk membuka/menutup detail kartu OPD.
+    function toggleCard(btn) {
+        const card = btn.closest('.opd-card');
+        card.classList.toggle('expanded');
         
+        // Ganti ikon tombol
+        btn.textContent = card.classList.contains('expanded') ? '–' : '+';
+    }
+
+
+    function createOPDCard(opd, idx) {
       const card = document.createElement('div');
       card.className = 'opd-card';
       card.innerHTML = `
@@ -265,6 +281,8 @@
             <div class="big-amount total-anggaran">Rp. ${formatRupiah(opd.totalBudget)}</div>
           </div>
         </div>
+
+        <button class="toggle-btn" onclick="toggleCard(this)">+</button> 
 
         <div class="monthly">
           <h3>REALISASI BULAN OKTOBER</h3>
@@ -299,9 +317,7 @@
       el.textContent = val.toFixed(2).replace(/\.00$/, '') + '%';
     }
 
-    // ==========================================================
-    // FUNGSI renderAllOPD (SUDAN DIPERBAIKI LOGIKA PERHITUNGAN)
-    // ==========================================================
+    // FUNGSI renderAllOPD (dengan perbaikan logika perhitungan)
     function renderAllOPD(dataOPD) {
       const container = document.getElementById('containerOPD');
       container.innerHTML = '';
@@ -309,10 +325,10 @@
         const card = createOPDCard(opd, idx);
         container.appendChild(card);
 
-        // PERBAIKAN: Asumsi opd.realisasiTotal adalah total kumulatif HINGGA OKTOBER
+        // LOGIKA PERHITUNGAN YANG BENAR
         const total = opd.realisasiTotal; 
         const sisa = opd.totalBudget - total;
-        const persenKeuangan = (total / (opd.totalBudget || 1)) * 100; // Pembagian dengan nol dihindari
+        const persenKeuangan = (total / (opd.totalBudget || 1)) * 100; 
 
         const ctx = document.getElementById(`pie${idx}`).getContext('2d');
         new Chart(ctx, {
@@ -339,18 +355,13 @@
     }
 
 
-    // ==============================================
-    // FUNGSI COUNTER
-    // ==============================================
+    // FUNGSI COUNTER
     async function fetchAndDisplayVisitorCount() {
         const counterElement = document.getElementById('counterValue');
         
         try {
-            // Panggil URL counter Apps Script
             const response = await fetch(COUNTER_URL); 
             const count = await response.text();
-            
-            // Tampilkan nilai counter
             counterElement.textContent = `Total Kunjungan: ${formatRupiah(count)}`;
         } catch (error) {
             console.error("Gagal mengambil atau menambah hitungan pengunjung:", error);
@@ -358,9 +369,7 @@
         }
     }
 	  
-    // =====================
-    // INISIALISASI DASHBOARD
-    // =====================
+    // INISIALISASI DASHBOARD
 async function initDashboard() {
   let selectedOpdId = getUrlParameter('opd');
   if (!selectedOpdId && window.location.hash) {
@@ -372,7 +381,7 @@ async function initDashboard() {
   const allDataOPD = await fetchOPDData();
   renderAllOPD(allDataOPD);
 
-  // PANGGIL COUNTER DI SINI! (Non-blocking)
+  // Panggil Counter (Asinkron)
   fetchAndDisplayVisitorCount(); 
   
   if (selectedOpdId) {
@@ -386,6 +395,10 @@ async function initDashboard() {
 
     if (targetCard) {
       targetCard.setAttribute('id', targetId);
+      
+      // Otomatis membuka kartu yang dituju
+      targetCard.classList.add('expanded');
+      targetCard.querySelector('.toggle-btn').textContent = '–';
 
       const cardHeight = targetCard.offsetHeight;
       const viewportHeight = window.innerHeight;
@@ -400,31 +413,23 @@ initDashboard();
   
   </script>
 
-  <footer>
-    Data Extract → https://sulselprov.e-planning.id <br>
-    31 Oktober 2025 | 17.05 WITA | by @zuwlend
-  </footer>
-
-<div id="visitorCounter" class="visitor-counter">
-  <span style="font-size: 18px;">👀</span>
-  <span id="counterValue">Memuat...</span>
-</div>
+  <footer>
+    Data Extract → https://sulselprov.e-planning.id <br>
+    31 Oktober 2025 | 17.05 WITA | by @zuwlend
+  </footer>
 	
 <div style="
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 999;
-  text-align: center;
-  font-family: Arial, sans-serif;
-  cursor: pointer;
-  user-select: none;">
-  <a href="index.html" style="font-size: 20px; font-weight: bold; text-decoration: none; display: block; line-height: 40px;">👈 BACK</a>
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 999;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  user-select: none;">
+  <a href="index.html" style="font-size: 20px; font-weight: bold; text-decoration: none; display: block; line-height: 40px;">👈 BACK</a>
 </div>
 
 </body>
 
 </html>
-
-
-
