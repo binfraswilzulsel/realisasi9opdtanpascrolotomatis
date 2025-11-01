@@ -83,19 +83,8 @@
     .opd-title { font-weight: 800; font-size: 24px; color: #0b4aa2; margin: 0; line-height: 1; }
     .sub { color: var(--muted); margin-top: 6px; font-size: 14px; }
 
-    .toggle-btn {
-      position: absolute;
-      right: 12px;
-      top: 12px;
-      background: transparent;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: var(--accent-blue);
-      font-weight: bold;
-      z-index: 10;
-    }
-
+    /* Toggle Button tidak ada lagi */
+    
     .monthly {
       background: #40AA07;
       border-radius: 16px; 
@@ -126,14 +115,8 @@
       outline: #AA0792 solid 3px;
       width: 89%;
       margin: 14px auto;
-      
-      /* Kunci: Sembunyikan detail chart secara default */
-      **display: none;**
-    }
-    
-    /* Aturan untuk menampilkan detail chart ketika kartu memiliki class 'expanded' */
-    .opd-card.expanded .chart-card {
-      **display: block;**
+
+      /* Chart Card sekarang SELALU tampil */
     }
 
     .chart-title { font-weight: bold; text-align: center; margin-bottom: 8px; font-size: 14px; }
@@ -182,43 +165,17 @@
     }
 
     footer { text-align: center; color: white; padding: 25px; font-size: 11px; }
-
-    /* CSS COUNTER (posisi di antara konten dan footer) */
-    .visitor-counter {
-        position: relative; /* Dibuat mengalir sesuai dokumen */
-        margin: 20px auto 40px auto; /* Margin di atas dan bawah */
-        width: fit-content; /* Ukuran sesuai konten */
-        background: #fff;
-        color: var(--bg);
-        padding: 8px 15px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        font-weight: 700;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
   </style>
 </head>
 
 <body>
   <div class="container" id="containerOPD"></div>
 
-    <div id="visitorCounter" class="visitor-counter">
-      <span style="font-size: 18px;">👀</span>
-      <span id="counterValue">Memuat...</span>
-    </div>
-      <script>
+  <script>
     // ####################################################################
     // GANTI URL INI dengan URL Apps Script Data Utama Anda
     // ####################################################################
     const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYScBrl0u_uouNkBg1TI38ZyuJRK4VxlxC-_S1LiCsgrxVzS5jNM1TPlTngtOao62vCQ/exec'; 
-    
-    // ####################################################################
-    // GANTI URL INI dengan URL Web App Apps Script Visitor Counter Anda
-    // ####################################################################
-    const COUNTER_URL = 'https://script.google.com/macros/s/AKfycbzSJOF9OP0-K63E_6haeO1dyTKt72XWoRLWW1QyePIy0ELs01L89pjf6rvxYqI0_8M4/exec';
 	  
 	  const formatRupiah = (n) => new Intl.NumberFormat('id-ID').format(n);
 
@@ -253,26 +210,11 @@
             ctx.textBaseline = 'middle';
             meta.data.forEach((arc, i) => {
                 const pos = arc.tooltipPosition();
-                // Menampilkan realisasi dan sisa dana di atas potongannya
                 ctx.fillText('Rp. ' + formatRupiah(data[i]), pos.x, pos.y);
             });
             ctx.restore();
         }
     };
-
-    /**
-     * Fungsi untuk membuka/menutup detail kartu OPD.
-     */
-    function toggleCard(btn) {
-        // Cari elemen parent 'opd-card'
-        const card = btn.closest('.opd-card');
-        
-        // Toggle class 'expanded'
-        card.classList.toggle('expanded');
-        
-        // Ganti ikon tombol
-        btn.textContent = card.classList.contains('expanded') ? '–' : '+';
-    }
 
 
     function createOPDCard(opd, idx) {
@@ -288,9 +230,7 @@
                 </div>
             </div>
 
-            <button class="toggle-btn" onclick="toggleCard(this)">+</button>
-
-            <div class="monthly">
+                        <div class="monthly">
                 <h3>REALISASI BULAN OKTOBER</h3>
                 <div class="amount">Rp. ${formatRupiah(opd.realisasiBulanOktober)}</div>
             </div>
@@ -318,14 +258,11 @@
     }
 
     function setProgress(el, percent) {
-        // Memastikan nilai antara 0 dan 100
         const val = Math.max(0, Math.min(100, percent)); 
         el.style.width = val + '%';
-        // Menampilkan dua angka di belakang koma, menghilangkan .00 jika nol
         el.textContent = val.toFixed(2).replace(/\.00$/, '') + '%'; 
     }
 
-    // FUNGSI renderAllOPD (dengan perbaikan logika perhitungan)
 function renderAllOPD(dataOPD) {
         const container = document.getElementById('containerOPD');
         container.innerHTML = '';
@@ -364,23 +301,6 @@ function renderAllOPD(dataOPD) {
         });
     }
 
-    // FUNGSI COUNTER
-    async function fetchAndDisplayVisitorCount() {
-        const counterElement = document.getElementById('counterValue');
-        
-        try {
-            // Panggil URL counter Apps Script
-            const response = await fetch(COUNTER_URL); 
-            const count = await response.text();
-            
-            // Tampilkan nilai counter
-            counterElement.textContent = `Total Kunjungan: ${formatRupiah(count)}`;
-        } catch (error) {
-            console.error("Gagal mengambil atau menambah hitungan pengunjung:", error);
-            counterElement.textContent = 'Gagal memuat';
-        }
-    }
-
     // =====================
     // INISIALISASI DASHBOARD
     // =====================
@@ -393,10 +313,7 @@ function renderAllOPD(dataOPD) {
         const allDataOPD = await fetchOPDData();
         renderAllOPD(allDataOPD);
 
-        // PANGGIL COUNTER DI SINI! (Non-blocking)
-        fetchAndDisplayVisitorCount(); 
-        
-        // Scroll dan buka kartu yang sesuai (jika ada)
+        // Scroll ke kartu yang sesuai (jika ada)
         if (selectedOpdId) {
             const normalize = str => str.toLowerCase().replace(/[^a-z0-9]/g, '');
             const targetId = normalize(selectedOpdId);
@@ -409,17 +326,10 @@ function renderAllOPD(dataOPD) {
             if (targetCard) {
                 targetCard.setAttribute('id', targetId);
 
-                // Otomatis membuka kartu yang dituju
-                targetCard.classList.add('expanded');
-                targetCard.querySelector('.toggle-btn').textContent = '–';
-
-                // Memberikan jeda sebelum scroll agar elemen chart selesai di-render
+                // Beri jeda waktu agar grafik sempat di-render sepenuhnya
                 setTimeout(() => {
-                    // Scroll ke tengah kartu
-                    const cardHeight = targetCard.offsetHeight;
-                    const viewportHeight = window.innerHeight;
-                    const offset = targetCard.offsetTop - (viewportHeight / 2) + (cardHeight / 2);
-                    window.scrollTo({ top: offset, behavior: 'smooth' });
+                    const offsetTop = targetCard.getBoundingClientRect().top + window.scrollY - 25;
+                    window.scrollTo({ top: offsetTop, behavior: 'smooth' });
                 }, 400);
             }
         }
@@ -430,9 +340,9 @@ function renderAllOPD(dataOPD) {
 
   <footer>
     Data Extract → https://sulselprov.e-planning.id <br>
-    31 Oktober 2025 | 17.05 WITA | &copy; Copyright by @zuwlend
+    31 Oktober 2025 | 16.30 WITA | &copy; Copyright by @zuwlend
   </footer>
-	
+
 <div style="
   position: fixed;
   bottom: 20px;
@@ -442,7 +352,7 @@ function renderAllOPD(dataOPD) {
   font-family: Arial, sans-serif;
   cursor: pointer;
   user-select: none;">
-  <a href="index.html" style="font-size: 20px; font-weight: bold; text-decoration: none; display: block; line-height: 40px;">👈 BACK</a>
+  <a href="index.html" style="font-size: 20px; font-weight: bold; text-decoration: none; display: block; line-height: 40px;">👈</a>
 </div>
 
 </body>
