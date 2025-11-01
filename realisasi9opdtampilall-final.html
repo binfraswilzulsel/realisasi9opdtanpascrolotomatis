@@ -1,358 +1,387 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard OPD — Realisasi Keuangan & Fisik</title>
-  
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>
-    :root {
-      --bg: #0740aa;
-      --card: #ffffff;
-      --muted: #6b7280;
-      --accent-green: #07AA1F;
-      --accent-blue: #1149b8;
-      --accent-pink: #AA0792;
-      --radius: 18px;
-      --pad: 14px;
-    }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard OPD — Realisasi Keuangan & Fisik</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0740aa;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --accent-green: #07AA1F;
+      --accent-blue: #1149b8;
+      --accent-pink: #AA0792;
+      --radius: 18px;
+      --pad: 14px;
+    }
 
-    html,body{height:100%}
-    body {
-      margin: 0;
-      background: var(--bg);
-      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      color: #0740aa;
-      padding: 20px;
-      box-sizing: border-box;
-    }
+    html,body{height:100%}
+    body {
+      margin: 0;
+      background: var(--bg);
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: #0740aa;
+      padding: 20px;
+      box-sizing: border-box;
+    }
 
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      margin: 0 auto;
-      padding-bottom: 1px;
-    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin: 0 auto;
+      padding-bottom: 1px;
+    }
 
-    .opd-card {
-      background: var(--card);
-      border-radius: 20px;
-      padding: var(--pad);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-      position: relative;
-      overflow: visible;
-      width: calc(50% - 10px);
-      box-sizing: border-box;
-    }
+    .opd-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: var(--pad);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      position: relative;
+      overflow: visible;
+      width: calc(50% - 10px);
+      box-sizing: border-box;
+    }
 
-    .emoji-wrap {
-      flex: 0 0 90px;
-      border-radius: 12px;
-      background: linear-gradient(180deg,#fff8,#fff0);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 60px;
-    }
+    .emoji-wrap {
+      flex: 0 0 90px;
+      border-radius: 12px;
+      background: linear-gradient(180deg,#fff8,#fff0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+    }
 
-    .opd-header {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-top: 5px;
-    }
+    .opd-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 5px;
+    }
 
-    .opd-body .total-anggaran {
-      background-color: var(--accent-blue);
-      color: white;
-      font-weight: 700;
-      font-size: 16px;
-      padding: 6px 6px;
-      border-radius: 8px;
-      margin-top: 8px;
-      text-align: center;
-      width: 100%;
-      max-width: 85%;
-      box-sizing: border-box;
-    }
+    .opd-body .total-anggaran {
+      background-color: var(--accent-blue);
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 6px 6px;
+      border-radius: 8px;
+      margin-top: 8px;
+      text-align: center;
+      width: 100%;
+      max-width: 85%;
+      box-sizing: border-box;
+    }
 
-    .opd-body { flex: 1; }
-    .opd-title { font-weight: 800; font-size: 24px; color: #0b4aa2; margin: 0; line-height: 1; }
-    .sub { color: var(--muted); margin-top: 6px; font-size: 14px; }
+    .opd-body { flex: 1; }
+    .opd-title { font-weight: 800; font-size: 24px; color: #0b4aa2; margin: 0; line-height: 1; }
+    .sub { color: var(--muted); margin-top: 6px; font-size: 14px; }
 
-    /* Toggle Button tidak ada lagi */
-    
-    .monthly {
-      background: #40AA07;
-      border-radius: 16px; 
-      padding: 8px; 
-      text-align: center;
-      margin-top: 10px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      width: 92%; 
-      margin: 10px auto;
-    }
+    .toggle-btn {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--accent-blue);
+    }
 
-    .monthly h3 { 
-      margin: 0; 
-      font-size: 12px; 
-      color: #ffffff; }
-    
-    .monthly .amount { 
-      margin-top: 0; 
-      font-size: 22px; 
-      font-weight: bold; 
-      color: #ffffff; }
+    .expandable {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      margin-top: 10px;
+    }
 
-    .chart-card {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 12px;
-      margin-top: 14px;
-      outline: #AA0792 solid 3px;
-      width: 89%;
-      margin: 14px auto;
+    .monthly {
+      background: #40AA07;
+      border-radius: 16px; 
+      padding: 8px; 
+      text-align: center;
+      margin-top: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      width: 92%; 
+      margin: 10px auto;
+    }
 
-      /* Chart Card sekarang SELALU tampil */
-    }
+    .monthly h3 { 
+      margin: 0; 
+      font-size: 12px; 
+      color: #ffffff; }
+    
+    .monthly .amount { 
+      margin-top: 0; 
+      font-size: 22px; 
+      font-weight: bold; 
+      color: #ffffff; }
 
-    .chart-title { font-weight: bold; text-align: center; margin-bottom: 8px; font-size: 14px; }
-    .legend { display: flex; gap: 12px; justify-content: center; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
-    .legend .item { display: flex; gap: 8px; align-items: center; }
-    .dot { width: 18px; height: 10px; border-radius: 6px; display: inline-block; }
+    .chart-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 12px;
+      margin-top: 14px;
+      outline: #AA0792 solid 3px;
+      width: 89%;
+      margin: 14px auto;
+    }
 
-    .progress-row { margin-top: 8px; font-size: 14px; color: #111; }
-    .progress-label { color: var(--muted); font-size: 13px; }
-    .progress-bar { background: #e6e6e6; border-radius: 999px; height: 22px; overflow: hidden; display: flex; align-items: center; padding: 3px; }
-    .progress-fill {
-      height: 100%;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 800;
-      min-width: 40px;
-      transition: width 600ms ease;
-    }
+    .chart-title { font-weight: bold; text-align: center; margin-bottom: 8px; font-size: 14px; }
+    .legend { display: flex; gap: 12px; justify-content: center; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
+   	.legend .item { display: flex; gap: 8px; align-items: center; }
+    .dot { width: 18px; height: 10px; border-radius: 6px; display: inline-block; }
 
-    .pie-wrapper { position: relative; padding: 10px; }
-    .pie-canvas { width: 100% !important; max-width: 400px; margin: 0 auto; }
+    .progress-row { margin-top: 8px; font-size: 14px; color: #111; }
+    .progress-label { color: var(--muted); font-size: 13px; }
+    .progress-bar { background: #e6e6e6; border-radius: 999px; height: 22px; overflow: hidden; display: flex; align-items: center; padding: 3px; }
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      min-width: 40px;
+      transition: width 600ms ease;
+    }
 
-    @media (max-width: 768px) {
-      .opd-card { width: 100%; }
-      .pie-canvas { max-width: 350px; }
-    }
+    .pie-wrapper { position: relative; padding: 10px; }
+    .pie-canvas { width: 100% !important; max-width: 400px; margin: 0 auto; }
 
-    @media (max-width: 420px) {
-      .opd-card { padding: 12px; }
-      .big-amount { font-size: 18px; }
-      .monthly .amount { font-size: 22px; }
-      .pie-canvas {
-        max-width: 300px;
-      }
-    }
+    @media (max-width: 768px) {
+      .opd-card { width: 100%; }
+      .pie-canvas { max-width: 350px; }
+    }
 
-    .hingga-bg {
-      background-color: #AA0792; 
-      padding: 1px 4px; 
-      border-radius: 5px; 
-      font-weight: bold;
-      color: #ffffff; 
-    }
+    @media (max-width: 420px) {
+      .opd-card { padding: 12px; }
+      .big-amount { font-size: 18px; }
+      .monthly .amount { font-size: 22px; }
+      .pie-canvas {
+        max-width: 300px;
+      }
+    }
 
-    footer { text-align: center; color: white; padding: 25px; font-size: 11px; }
-  </style>
+    .hingga-bg {
+      background-color: #AA0792; 
+      padding: 1px 4px; 
+      border-radius: 5px; 
+      font-weight: bold;
+      color: #ffffff; 
+    }
+
+    footer { text-align: center; color: white; padding: 25px; font-size: 11px; }
+  </style>
 </head>
 
 <body>
-  <div class="container" id="containerOPD"></div>
+  <div class="container" id="containerOPD"></div>
 
-  <script>
-    // ####################################################################
-    // GANTI URL INI dengan URL Apps Script Data Utama Anda
-    // ####################################################################
-    const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYScBrl0u_uouNkBg1TI38ZyuJRK4VxlxC-_S1LiCsgrxVzS5jNM1TPlTngtOao62vCQ/exec'; 
-	  
-	  const formatRupiah = (n) => new Intl.NumberFormat('id-ID').format(n);
+  <script>
+    const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYScBrl0u_uouNkBg1TI38ZyuJRK4VxlxC-_S1LiCsgrxVzS5jNM1TPlTngtOao62vCQ/exec'; 
+    const formatRupiah = (n) => new Intl.NumberFormat('id-ID').format(n);
 
-    function getUrlParameter(name) {
-        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-        const results = regex.exec(location.search);
-        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-    }
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        const results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
 
-    async function fetchOPDData() {
-        try {
-            const response = await fetch(APPSCRIPT_URL);
-            return await response.json(); 
-        } catch (error) {
-            console.error("Gagal mengambil data dari Apps Script:", error);
-            return []; 
-        }
-    }
+    async function fetchOPDData() {
+        try {
+            const response = await fetch(APPSCRIPT_URL);
+            return await response.json(); 
+        } catch (error) {
+            console.error("Gagal mengambil data dari Apps Script:", error);
+            return []; 
+        }
+    }
 
-    // Plugin Chart.js untuk menampilkan nilai di tengah pie chart
-    const pieLabelPlugin = {
-        id: 'pieLabelPlugin',
-        afterDraw(chart) {
-            const { ctx } = chart;
-            const meta = chart.getDatasetMeta(0);
-            const data = chart.data.datasets[0].data;
-            ctx.save();
-            ctx.font = 'bold 11px Inter';
-            ctx.fillStyle = '#fff';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            meta.data.forEach((arc, i) => {
-                const pos = arc.tooltipPosition();
-                ctx.fillText('Rp. ' + formatRupiah(data[i]), pos.x, pos.y);
-            });
-            ctx.restore();
-        }
-    };
+    // Plugin Chart.js untuk menampilkan nilai di tengah pie chart
+    const pieLabelPlugin = {
+        id: 'pieLabelPlugin',
+        afterDraw(chart) {
+            const { ctx } = chart;
+            const meta = chart.getDatasetMeta(0);
+            const data = chart.data.datasets[0].data;
+            ctx.save();
+            ctx.font = 'bold 11px Inter';
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            meta.data.forEach((arc, i) => {
+                const pos = arc.tooltipPosition();
+                // Menampilkan realisasi dan sisa dana di atas potongannya
+                ctx.fillText('Rp. ' + formatRupiah(data[i]), pos.x, pos.y);
+            });
+            ctx.restore();
+        }
+    };
 
+    /**
+     * Membuat elemen kartu (Card) HTML untuk setiap OPD.
+     * Tidak lagi menghitung persenKeuangan di sini.
+     */
+    function createOPDCard(opd, idx) {
+        // PERHATIAN: Perhitungan `total`, `sisa`, dan `persenKeuangan`
+        // telah dihapus dari fungsi ini karena tidak digunakan
+        // untuk mengisi DOM di sini dan akan dihitung di renderAllOPD.
 
-    function createOPDCard(opd, idx) {
-        const card = document.createElement('div');
-        card.className = 'opd-card';
-        card.innerHTML = `
-            <div class="opd-header">
-                <div class="emoji-wrap">${opd.emoji}</div>
-                <div class="opd-body">
-                    <h1 class="opd-title">${opd.opdName}</h1>
-                    <div class="sub">Total Anggaran :</div>
-                    <div class="big-amount total-anggaran">Rp. ${formatRupiah(opd.totalBudget)}</div>
-                </div>
-            </div>
+        const card = document.createElement('div');
+        card.className = 'opd-card';
+        card.innerHTML = `
+            <div class="opd-header">
+                <div class="emoji-wrap">${opd.emoji}</div>
+                <div class="opd-body">
+                    <h1 class="opd-title">${opd.opdName}</h1>
+                    <div class="sub">Total Anggaran :</div>
+                    <div class="big-amount total-anggaran">Rp. ${formatRupiah(opd.totalBudget)}</div>
+                </div>
+            </div>
 
-                        <div class="monthly">
-                <h3>REALISASI BULAN OKTOBER</h3>
-                <div class="amount">Rp. ${formatRupiah(opd.realisasiBulanOktober)}</div>
-            </div>
+            <div class="monthly">
+                <h3>REALISASI BULAN OKTOBER</h3>
+                <div class="amount">Rp. ${formatRupiah(opd.realisasiBulanOktober)}</div>
+            </div>
 
-            <div class="chart-card">
-                <div class="chart-title">TOTAL REALISASI <span class="hingga-bg">HINGGA</span> OKTOBER</div>
-                
-                <div class="legend">
-                    <div><span class="dot" style="background:var(--accent-green)"></span> Realisasi</div>
-                    <div><span class="dot" style="background:var(--accent-blue)"></span> Sisa Dana</div>
-                </div>
-                <div class="pie-wrapper"><canvas id="pie${idx}" class="pie-canvas" width="400" height="400"></canvas></div>
+            <div class="chart-card">
+                <div class="chart-title">TOTAL REALISASI <span class="hingga-bg">HINGGA</span> OKTOBER</div>
+                
+                <div class="legend">
+                    <div><span class="dot" style="background:var(--accent-green)"></span> Realisasi</div>
+                    <div><span class="dot" style="background:var(--accent-blue)"></span> Sisa Dana</div>
+                </div>
+                <div class="pie-wrapper"><canvas id="pie${idx}" class="pie-canvas" width="400" height="400"></canvas></div>
 
-                <div class="progress-row">
-                    <div class="progress-label">Realisasi Keuangan (%)</div>
-                    <div class="progress-bar"><div class="progress-fill" id="finance${idx}" style="width:0;background:var(--accent-green)">0%</div></div>
-                </div>
-                <div class="progress-row">
-                    <div class="progress-label">Realisasi Fisik (%)</div>
-                    <div class="progress-bar"><div class="progress-fill" id="physical${idx}" style="width:0;background:var(--accent-pink)">0%</div></div>
-                </div>
-            </div>
-        `;
-        return card;
-    }
+                <div class="progress-row">
+                    <div class="progress-label">Realisasi Keuangan (%)</div>
+                    <div class="progress-bar"><div class="progress-fill" id="finance${idx}" style="width:0;background:var(--accent-green)">0%</div></div>
+                </div>
+                <div class="progress-row">
+                    <div class="progress-label">Realisasi Fisik (%)</div>
+                    <div class="progress-bar"><div class="progress-fill" id="physical${idx}" style="width:0;background:var(--accent-pink)">0%</div></div>
+                </div>
+            </div>
+        `;
+        return card;
+    }
 
-    function setProgress(el, percent) {
-        const val = Math.max(0, Math.min(100, percent)); 
-        el.style.width = val + '%';
-        el.textContent = val.toFixed(2).replace(/\.00$/, '') + '%'; 
-    }
+    /**
+     * Mengatur lebar progress bar dan menampilkan nilai persentase.
+     */
+    function setProgress(el, percent) {
+        // Memastikan nilai antara 0 dan 100
+        const val = Math.max(0, Math.min(100, percent)); 
+        el.style.width = val + '%';
+        // Menampilkan dua angka di belakang koma, menghilangkan .00 jika nol
+        el.textContent = val.toFixed(2).replace(/\.00$/, '') + '%'; 
+    }
 
+    /**
+     * Memproses data dan merender semua kartu OPD,
+     * sekaligus melakukan semua perhitungan persentase.
+     */
 function renderAllOPD(dataOPD) {
-        const container = document.getElementById('containerOPD');
-        container.innerHTML = '';
-        dataOPD.forEach((opd, idx) => {
-            const card = createOPDCard(opd, idx);
-            container.appendChild(card);
+        const container = document.getElementById('containerOPD');
+        container.innerHTML = '';
+        dataOPD.forEach((opd, idx) => {
+            const card = createOPDCard(opd, idx);
+            container.appendChild(card);
 
-            // LOGIKA PERHITUNGAN YANG BENAR
-            const total = opd.realisasiTotal; 
-            const sisa = opd.totalBudget - total;
-            const persenKeuangan = (total / (opd.totalBudget || 1)) * 100;
+            // PERBAIKAN: Menggunakan opd.realisasiTotal sebagai total kumulatif,
+            // TIDAK DITAMBAH opd.realisasiBulanOktober untuk menghindari double counting.
+            const total = opd.realisasiTotal; 
+            const sisa = opd.totalBudget - total;
+            const persenKeuangan = (total / (opd.totalBudget || 1)) * 100;
 
-            const ctx = document.getElementById(`pie${idx}`).getContext('2d');
-            new Chart(ctx, {
-                type: 'pie',
-                data: { 
-                    labels: ['Realisasi', 'Sisa Dana'], 
-                    datasets: [{ 
-                        data: [total, sisa], 
-                        backgroundColor: ['#07AA1F', '#0740AA'],
-                        borderColor: '#fff', 
-                        borderWidth: 4 
-                    }] 
-                },
-                options: {
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } } 
-                },
-                plugins: [pieLabelPlugin]
-            });
+            const ctx = document.getElementById(`pie${idx}`).getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: { 
+                    labels: ['Realisasi', 'Sisa Dana'], 
+                    datasets: [{ 
+                        data: [total, sisa], // Menggunakan total yang sudah benar
+                        backgroundColor: ['#07AA1F', '#0740AA'],
+                        borderColor: '#fff', 
+                        borderWidth: 4 
+                    }] 
+                },
+                options: {
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } } 
+                },
+                plugins: [pieLabelPlugin]
+            });
 
-            // Mengisi Progress Bar Keuangan dan Fisik
-            setProgress(document.getElementById(`finance${idx}`), persenKeuangan);
-            setProgress(document.getElementById(`physical${idx}`), opd.percentPhysical);
-        });
-    }
+            // Mengisi Progress Bar Keuangan dan Fisik
+            setProgress(document.getElementById(`finance${idx}`), persenKeuangan);
+            setProgress(document.getElementById(`physical${idx}`), opd.percentPhysical);
+        });
+    }
 
-    // =====================
-    // INISIALISASI DASHBOARD
-    // =====================
-    async function initDashboard() {
-        let selectedOpdId = getUrlParameter('opd');
-        if (!selectedOpdId && window.location.hash) {
-            selectedOpdId = window.location.hash.substring(1);
-        }
+    // =====================
+    // INISIALISASI DASHBOARD
+    // =====================
+    async function initDashboard() {
+        let selectedOpdId = getUrlParameter('opd');
+        if (!selectedOpdId && window.location.hash) {
+            selectedOpdId = window.location.hash.substring(1);
+        }
 
-        const allDataOPD = await fetchOPDData();
-        renderAllOPD(allDataOPD);
+        const allDataOPD = await fetchOPDData();
+        renderAllOPD(allDataOPD);
 
         // Scroll ke kartu yang sesuai (jika ada)
-        if (selectedOpdId) {
-            const normalize = str => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const targetId = normalize(selectedOpdId);
+        if (selectedOpdId) {
+            setTimeout(() => {
+                const normalize = str => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const targetId = normalize(selectedOpdId);
 
-            const targetCard = Array.from(document.querySelectorAll('.opd-card')).find(el => {
-                const titleText = el.querySelector('.opd-title')?.textContent || '';
-                return normalize(titleText).includes(targetId);
-            });
+                const targetCard = Array.from(document.querySelectorAll('.opd-card')).find(el => {
+                    const titleText = el.querySelector('.opd-title')?.textContent || '';
+                    return normalize(titleText).includes(targetId);
+                });
 
-            if (targetCard) {
-                targetCard.setAttribute('id', targetId);
+                if (targetCard) {
+                    // Beri jeda waktu agar grafik sempat di-render sepenuhnya
+                    setTimeout(() => {
+                        const offsetTop = targetCard.getBoundingClientRect().top + window.scrollY - 25;
+                        window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+                    }, 400);
+                }
+            }, 1400);
+        }
+    }
 
-                // Beri jeda waktu agar grafik sempat di-render sepenuhnya
-                setTimeout(() => {
-                    const offsetTop = targetCard.getBoundingClientRect().top + window.scrollY - 25;
-                    window.scrollTo({ top: offsetTop, behavior: 'smooth' });
-                }, 400);
-            }
-        }
-    }
-
-    initDashboard();
+    initDashboard();
 </script>
 
-  <footer>
-    Data Extract → https://sulselprov.e-planning.id <br>
-    31 Oktober 2025 | 16.30 WITA | &copy; Copyright by @zuwlend
-  </footer>
+  <footer>
+    Data Extract → https://sulselprov.e-planning.id <br>
+    31 Oktober 2025 | 16.30 WITA | &copy; Copyright by @zuwlend
+  </footer>
 
 <div style="
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 999;
-  text-align: center;
-  font-family: Arial, sans-serif;
-  cursor: pointer;
-  user-select: none;">
-  <a href="index.html" style="font-size: 20px; font-weight: bold; text-decoration: none; display: block; line-height: 40px;">👈</a>
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 999;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  user-select: none;">
+  <a href="index.html" style="font-size: 15px; font-weight: bold; text-decoration: none; display: block; line-height: 40px;">BACK👈</a>
 </div>
 
 </body>
