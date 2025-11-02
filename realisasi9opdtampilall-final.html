@@ -368,11 +368,25 @@ function renderAllOPD(dataOPD) {
 </script>
 
   <footer>
-    Data Extract → https://sulselprov.e-planning.id <br>
-    31 Oktober 2025 | 16.30 WITA | &copy; Copyright by @zuwlend
-  </footer>
+  Data Extract → https://sulselprov.e-planning.id <br>
+  31 Oktober 2025 | 16.30 WITA | &copy; Copyright by @zuwlend
+  <div id="visitorCount" style="margin-top:6px; color:#fff; font-size:11px;"></div>
+</footer>
 
-<div style="
+<script>
+  const VISITOR_URL = 'https://script.google.com/macros/s/AKfycbwfbbXioNyRK2EiFO2_6Ok6Ahp_8n9kidDbLiru2K2KMuiD3TB9zmqJiz5PGihrwA/exec'; // ganti dgn URL kamu
+  fetch(VISITOR_URL)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('visitorCount').textContent = `👁️ Total Kunjungan: ${data.visits}`;
+    })
+    .catch(err => {
+      console.error('Gagal memuat counter:', err);
+      document.getElementById('visitorCount').textContent = '👁️ Counter offline';
+    });
+</script>
+
+  <div style="
   position: fixed;
   background-color: rgba(55, 42, 243, 0.226);
   border-radius: 10px;
@@ -389,4 +403,5 @@ function renderAllOPD(dataOPD) {
 
 </body>
 </html>
+
 
